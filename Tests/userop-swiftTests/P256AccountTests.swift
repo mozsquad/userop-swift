@@ -15,7 +15,7 @@ import BigInt
 final class P256AccountTests: XCTestCase {
     let privateKey = Data(hex: "36514c262240227300f9dbdbbb6511017a0b3df8e8b6795ec39b0136b83e9ad0")
     let rpcUrl = URL(string: "https://data-seed-prebsc-1-s1.binance.org:8545")!
-    let bundleRpcUrl = URL(string: "http://20.205.162.210:3000")!
+    let bundleRpcUrl = URL(string: "https://service-test.onto.app/S7/rpc")!
     let entryPoint = EthereumAddress("0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789")!
     let owner = EthereumAddress("0x3DDa64705BE3b4D9c512B707Ef480795f45070CC")!
     let factoryAddress = EthereumAddress("0x13868836bb7b4dd354df54e8fef4092011a587b1")!
@@ -50,32 +50,32 @@ final class P256AccountTests: XCTestCase {
 //        let client = try await Client(rpcUrl: rpc, overrideBundlerRpc: bundler, entryPoint: entryPointAddress)
 //        let response = try await client.sendUserOperation(builder: account)
 //    }
-//    func testGetAddress() async throws {
-//
-//
-//        let provider = try await BundlerJsonRpcProvider(url: rpcUrl, bundlerRpc: bundleRpcUrl, network: .Custom(networkID: 97))
-//        let web3 = Web3(provider: provider)
-//        let factory = SimpleAccountFactory(web3: web3, address: factoryAddress)
-//        let initCode = factoryAddress.addressData +
-//        factory.contract.method("createAccount", parameters: [owner, salt], extraData: nil)!
-//        let onlineAddress = try await factory.getAddress(owner: owner, salt: 1).address
-//
-//        let initCodeHash = initCode.sha3(.keccak256)
-//        let saltData = salt.serialize()
-//        var data = Data()
-//        data.append(Data([0xFF]))
-//        data.append(factoryAddress.addressData)
-//        data.append(Data(repeating: 0x0, count: 32 - saltData.count))
-//        data.append(saltData)
-//        data += initCodeHash
-//
-//        let hash = data.sha3(.keccak256)
-//        let addressData = Data(hash[12...])
-//        let address = addressData.toHexString()
-//
-//        print("online: \(onlineAddress), address: \(address)")
-//    }
-//
+    func testGetAddress() async throws {
+
+
+        let provider = try await BundlerJsonRpcProvider(url: rpcUrl, bundlerRpc: bundleRpcUrl, network: .Custom(networkID: 97))
+        let web3 = Web3(provider: provider)
+        let factory = SimpleAccountFactory(web3: web3, address: factoryAddress)
+        let initCode = factoryAddress.addressData +
+        factory.contract.method("createAccount", parameters: [owner, salt], extraData: nil)!
+        let onlineAddress = try await factory.getAddress(owner: owner, salt: 1).address
+
+        let initCodeHash = initCode.sha3(.keccak256)
+        let saltData = salt.serialize()
+        var data = Data()
+        data.append(Data([0xFF]))
+        data.append(factoryAddress.addressData)
+        data.append(Data(repeating: 0x0, count: 32 - saltData.count))
+        data.append(saltData)
+        data += initCodeHash
+
+        let hash = data.sha3(.keccak256)
+        let addressData = Data(hash[12...])
+        let address = addressData.toHexString()
+
+        print("online: \(onlineAddress), address: \(address)")
+    }
+
     func testCreate2() async throws {
         let from = EthereumAddress("0x8ba1f109551bD432803012645Ac136ddd64DBA72")!
         let salt = "HelloWorld".data(using: .utf8)!.sha3(.keccak256)
@@ -94,7 +94,7 @@ final class P256AccountTests: XCTestCase {
         let provider = try await BundlerJsonRpcProvider(url: rpcUrl, bundlerRpc: bundleRpcUrl, network: .Custom(networkID: 97))
         let web3 = Web3(provider: provider)
         let entry = EntryPoint(web3: web3, address: entryPoint)
-        let onlineAddress = try await entry.getSenderAddress(initCode: initCode)
+        let onlineAddress = try await entry.getSenderAddress(initCode: initCode).address
         print("online address: \(onlineAddress)")
     }
     

@@ -32,7 +32,7 @@ public class SimpleAccountFactory: ISimpleAccountFactory {
         let transaction = CodableTransaction(to: address, data: data)
         let result = try await web3.eth.callTransaction(transaction)
         let decoded = try contract.decodeReturnData("getAddress", data: result)
-        guard let returnAddress = decoded[""] as? EthereumAddress else {
+        guard let returnAddress = decoded["0"] as? EthereumAddress else {
             throw Web3Error.typeError
         }
         return returnAddress
