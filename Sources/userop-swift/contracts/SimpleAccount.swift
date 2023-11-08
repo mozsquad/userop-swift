@@ -21,6 +21,6 @@ public class SimpleAccount: ISimpleAccount {
     init(web3: Web3, address: EthereumAddress) {
         self.web3 = web3
         self.address = address
-        self.contract = try! EthereumContract(Abi.entryPoint, at: address)
+        self.contract = try! EthereumContract(Abi.simpleAccount, at: address)
     }
 }
