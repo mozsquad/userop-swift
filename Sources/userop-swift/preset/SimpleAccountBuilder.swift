@@ -65,7 +65,9 @@ public class SimpleAccountBuilder: UserOperationBuilder {
         useMiddleware(ResolveAccountMiddleware(entryPoint: self.entryPoint, initCode: initCode))
         useMiddleware(GasPriceMiddleware(provider: provider))
         useMiddleware(GasEstimateMiddleware(rpcProvider: provider))
-        useMiddleware(paymasterMiddleware)
+        if let paymasterMiddleware {
+            useMiddleware(paymasterMiddleware)
+        }
         useMiddleware(SignatureMiddleware(signer: signer))
     }
 
