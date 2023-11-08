@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "userop-swift",
     platforms: [
-        .macOS(.v12), .iOS(.v14)
+        .macOS(.v12), .iOS(.v13)
     ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
@@ -16,7 +16,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/attaswift/BigInt.git", from: "5.3.0"),
-        .package(url: "https://github.com/zhangliugang/web3swift.git", branch: "userop")
+        .package(url: "https://github.com/fish-yan/web3swift.git", branch: "userop")
 //        .package(path: "../../web3swift")
     ],
     targets: [
