@@ -20,7 +20,7 @@ final class P256AccountTests: XCTestCase {
     let owner = EthereumAddress("0x3DDa64705BE3b4D9c512B707Ef480795f45070CC")!
     let factoryAddress = EthereumAddress("0x13868836bb7b4dd354df54e8fef4092011a587b1")!
     let sender = EthereumAddress("0x378597F7Fd2b950Ff2db5A3E8e4e90e276c7f285")!
-    let salt = BigUInt(1)
+    let salt = BigInt(1)
 //    func testBindEmail() async throws {
 //        let account =  try await P256AccountBuilder(signer: P256R1Signer(),
 //                                                    rpcUrl: rpc,
@@ -51,56 +51,78 @@ final class P256AccountTests: XCTestCase {
 //        let client = try await Client(rpcUrl: rpc, overrideBundlerRpc: bundler, entryPoint: entryPointAddress)
 //        let response = try await client.sendUserOperation(builder: account)
 //    }
-    func testGetAddress() async throws {
-
-
-        let provider = try await BundlerJsonRpcProvider(url: rpcUrl, bundlerRpc: bundleRpcUrl, network: .Custom(networkID: 97))
-        let web3 = Web3(provider: provider)
-        let factory = SimpleAccountFactory(web3: web3, address: factoryAddress)
-//        let initCode = factoryAddress.addressData +
-//        factory.contract.method("createAccount", parameters: [owner, salt], extraData: nil)!
-        let onlineAddress = try await factory.getAddress(owner: owner, salt: 1).address
-        let ERC1967Proxy = Data(hex: "0xa2b22da3032e50b55f95ec1d13336102d675f341167aa76db571ef7f8bb7975d")
-        let simpleAccount = SimpleAccount(web3: web3, address: owner)
-        let initialize = simpleAccount.contract.method("initialize", parameters: [owner], extraData: nil)!
-        let initCode = Data(hex: "0xaae4cef5d37af27a91ad34fa0d4df5cb3149421e666b38ecdfd09efd2376bbfd")
-        
-        let initCodeHash = initCode.sha3(.keccak256)
-        let saltData = salt.serialize()
-        var data = Data()
-        data.append(Data([0xFF]))
-        data.append(factoryAddress.addressData)
-        data.append(Data(repeating: 0x0, count: 32 - saltData.count))
-        data.append(saltData)
-        data += initCodeHash
-
-        let hash = data.sha3(.keccak256)
-        let addressData = Data(hash[12...])
-        let address = addressData.toHexString()
-
-        print("online: \(onlineAddress), address: \(address)")
-    }
+//    func testGetAddress() async throws {
+//
+//
+//        let provider = try await BundlerJsonRpcProvider(url: rpcUrl, bundlerRpc: bundleRpcUrl, network: .Custom(networkID: 97))
+//        let web3 = Web3(provider: provider)
+//        let factory = SimpleAccountFactory(web3: web3, address: factoryAddress)
+////        let initCode = factoryAddress.addressData +
+////        factory.contract.method("createAccount", parameters: [owner, salt], extraData: nil)!
+//        let onlineAddress = try await factory.getAddress(owner: owner, salt: 1).address
+//        let ERC1967Proxy = Data(hex: "0xa2b22da3032e50b55f95ec1d13336102d675f341167aa76db571ef7f8bb7975d")
+//        let simpleAccount = SimpleAccount(web3: web3, address: owner)
+//        let initialize = simpleAccount.contract.method("initialize", parameters: [owner], extraData: nil)!
+//        let initCode = Data(hex: "0xaae4cef5d37af27a91ad34fa0d4df5cb3149421e666b38ecdfd09efd2376bbfd")
+//        
+//        let initCodeHash = initCode.sha3(.keccak256)
+//        let saltData = salt.serialize()
+//        var data = Data()
+//        data.append(Data([0xFF]))
+//        data.append(factoryAddress.addressData)
+//        data.append(Data(repeating: 0x0, count: 32 - saltData.count))
+//        data.append(saltData)
+//        data += initCodeHash
+//
+//        let hash = data.sha3(.keccak256)
+//        let addressData = Data(hash[12...])
+//        let address = addressData.toHexString()
+//
+//        print("online: \(onlineAddress), address: \(address)")
+//    }
 
     func testCreate2() async throws {
-        let from = EthereumAddress("0x8ba1f109551bD432803012645Ac136ddd64DBA72")!
-        let salt = "HelloWorld".data(using: .utf8)!.sha3(.keccak256)
-        let initCode = Data(hex: "0x6394198df16000526103ff60206004601c335afa6040516060f3")
-        var data = Data()
-        data.append(Data([0x0b]))
-        data.append(from.addressData)
-        data.append(Data(repeating: 0, count: 32 - salt.count))
-        data.append(salt)
-        data.append(initCode.sha3(.keccak256))
-        let hash = data.sha3(.keccak256)
-        let addressData = hash[12...]
-        let address = addressData.toHexString()
-        print("address: \(address)")
+//        let from = EthereumAddress("0x8ba1f109551bD432803012645Ac136ddd64DBA72")!
+//        let salt = "HelloWorld".data(using: .utf8)!.sha3(.keccak256)
+//        let initCode = Data(hex: "0x6394198df16000526103ff60206004601c335afa6040516060f3")
+//        var data = Data()
+//        data.append(Data([0x0b]))
+//        data.append(from.addressData)
+//        data.append(Data(repeating: 0, count: 32 - salt.count))
+//        data.append(salt)
+//        data.append(initCode.sha3(.keccak256))
+//        let hash = data.sha3(.keccak256)
+//        let addressData = hash[12...]
+//        let address = addressData.toHexString()
+//        print("address: \(address)")
 
         let provider = try await BundlerJsonRpcProvider(url: rpcUrl, bundlerRpc: bundleRpcUrl, network: .Custom(networkID: 97))
-        let web3 = Web3(provider: provider)
-        let entry = EntryPoint(web3: web3, address: entryPoint)
-        let onlineAddress = try await entry.getSenderAddress(initCode: initCode).address
-        print("online address: \(onlineAddress)")
+        let signer = SimpleSinger(privateKey: privateKey)
+        let builder = try await SimpleAccountBuilder(signer: signer, rpcUrl: rpcUrl, bundleRpcUrl: bundleRpcUrl, entryPoint: entryPoint, factory: factoryAddress, salt: salt)
+        let result = try await builder.build(entryPoint: entryPoint, chainId: 97)
+//        let sender = EthereumAddress("0xbf1Aa0683D814cA6fc7e20BeB837502ed2a9EdEc")!
+//        let initCode = Data(hex: "13868836bb7b4dd354df54e8fef4092011a587b15fbfb9cf00000000000000000000000066da390b2b0c07216d43218a1e15b3b1171369af0000000000000000000000000000000000000000000000000000000000000000")
+//        let signature = Data(hex: "280281d36e968e8cc259d300daecd9d97e79b8df085dd48f18f595be4d59544171a316b4fd9fb6781a16db819eb3b42981954d042fc91e31efdb9ae7a2afde451c")
+//        let signer = SimpleSinger(privateKey: privateKey)
+//        let signature1 = try await signer.signMessage(Data(hex: "0xdead").sha3(.keccak256))
+//        print("signData: \(signature1.toHexString())")
+//        let signature = Data(hex: "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111")
+//        let nonce: BigUInt = 1
+        
+        let sender = EthereumAddress("0x378597f7fd2b950ff2db5a3e8e4e90e276c7f285")!
+        let initCode = Data()
+        let signature = Data(hex: "44d801a0ea587407f474fd1bb97f518c20f58c43c72132ac843fab17c6a3563e5a5da3fe961a96ee82e21a98a445f88c71457c73eca559fb51a48e0a93514c971b")
+        let nonce: BigUInt = 19
+        
+        let callData = Data(hex: "0xb61d27f60000000000000000000000003dda64705be3b4d9c512b707ef480795f45070cc000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000044a9059cbb0000000000000000000000003dda64705be3b4d9c512b707ef480795f45070cc00000000000000000000000000000000000000000000000000000000000f424000000000000000000000000000000000000000000000000000000000")
+        
+        let op = UserOperation(sender: sender, nonce: nonce, initCode: initCode, callData: callData, callGasLimit: 35000, verificationGasLimit: 70000, preVerificationGas: 21000, maxFeePerGas: 5650000000, maxPriorityFeePerGas: 5650000000, paymasterAndData: Data(), signature: signature)
+        let estimate: GasEstimate = try await provider.send("eth_estimateUserOperationGas", parameter: [op, entryPoint]).result
+        print("estimate: \(estimate)")
+//        let web3 = Web3(provider: provider)
+//        let entry = EntryPoint(web3: web3, address: entryPoint)
+//        let onlineAddress = try await entry.getSenderAddress(initCode: initCode).address
+//        print("online address: \(onlineAddress)")
     }
     
 //    func testCreateAccount() async throws {
@@ -128,38 +150,49 @@ final class P256AccountTests: XCTestCase {
 //        print("gaslimit", deployerGasLimit)
 //    }
     
-//    func testCalcPreVerificationGas() {
+    func testCalcPreVerificationGas() {
+        let sender = EthereumAddress("0xbf1Aa0683D814cA6fc7e20BeB837502ed2a9EdEc")!
+        let initCode = Data(hex: "13868836bb7b4dd354df54e8fef4092011a587b15fbfb9cf00000000000000000000000066da390b2b0c07216d43218a1e15b3b1171369af0000000000000000000000000000000000000000000000000000000000000000")
+        let callData = Data(hex: "0xb61d27f60000000000000000000000003dda64705be3b4d9c512b707ef480795f45070cc000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000044a9059cbb0000000000000000000000003dda64705be3b4d9c512b707ef480795f45070cc00000000000000000000000000000000000000000000000000000000000f424000000000000000000000000000000000000000000000000000000000")
+        let signature = Data(hex: "280281d36e968e8cc259d300daecd9d97e79b8df085dd48f18f595be4d59544171a316b4fd9fb6781a16db819eb3b42981954d042fc91e31efdb9ae7a2afde451c")
+        let op = UserOperation(sender: sender, nonce: 0, initCode: initCode, callData: callData, callGasLimit: 0, verificationGasLimit: 0, preVerificationGas: 21000, maxFeePerGas: 1, maxPriorityFeePerGas: 1, paymasterAndData: Data(), signature: signature)
+        
+        let packed = packed(op: op)
+        
+        let callDataCost = packed.map { x in
+            return x == 0 ? 4 : 16
+        }.reduce(0) { sum, x in
+            return sum + x
+        }
+        
+        let ret = Int(callDataCost + 21000 / 1 + 18300 + 4 * packed.count)
+        print("PreVerificationGas",ret)
+    }
+    
+    func testEstimate() async throws {
+        let owner = EthereumAddress("0x9bd3cf04e8f82ea6458b5a1cf4bed1f0623c8b04")!
+        let sender = EthereumAddress("0x518Cf77C2e79cFA3682CDa25604A6b88942eBE9D")!
+        let client = try await Client(rpcUrl: rpcUrl, overrideBundlerRpc: bundleRpcUrl, entryPoint: entryPoint)
+        let initCode = client.getInitCode(factoryAddress: factoryAddress, owner: owner, salt: salt)
+        let estimate = try await client.estimateUserOperationGas(sender: sender, initCode: initCode)
+        print(estimate)
+    }
+    
+//    func testCalcGasLimit() async throws {
+//        let provider = try await BundlerJsonRpcProvider(url: rpcUrl, bundlerRpc: bundleRpcUrl, network: .Custom(networkID: 97))
+//        let web3 = Web3(provider: provider)
+//        let factory = SimpleAccountFactory(web3: web3, address: factoryAddress)
+//        
 //        let initData = Data(hex: "0x13868836bb7b4dd354df54e8fef4092011a587b15fbfb9cf0000000000000000000000003dda64705be3b4d9c512b707ef480795f45070cc0000000000000000000000000000000000000000000000000000000000000001")
 //        let data = Data(hex: "0xb61d27f60000000000000000000000003dda64705be3b4d9c512b707ef480795f45070cc000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000044a9059cbb0000000000000000000000003dda64705be3b4d9c512b707ef480795f45070cc00000000000000000000000000000000000000000000000000000000000f424000000000000000000000000000000000000000000000000000000000")
-//        let op = UserOperation(sender: owner, nonce: 0, initCode: initData, callData: data, callGasLimit: 0, verificationGasLimit: 0, preVerificationGas: 21000, maxFeePerGas: 1, maxPriorityFeePerGas: 1, paymasterAndData: Data(), signature: Data(bytes: [1], count: 65))
+//        let op = UserOperation(sender: sender, nonce: 0, initCode: Data(), callData: data, callGasLimit: 0, verificationGasLimit: 0, preVerificationGas: 21000, maxFeePerGas: 1, maxPriorityFeePerGas: 1, paymasterAndData: Data(), signature: Data(bytes: [1], count: 65))
 //        
-//        let packed = packed(op: op)
-//        
-//        let callDataCost = packed.map { x in
-//            return x == 0 ? 4 : 16
-//        }.reduce(0) { sum, x in
-//            return sum + x
-//        }
-//        
-//        let ret = Int(callDataCost + 21000 / 1 + 18300 + 4 * packed.count)
-//        print("PreVerificationGas",ret)
+//        let estimate: GasEstimate = try await provider.send("eth_estimateUserOperationGas", parameter: [op, entryPoint]).result
+//
+//        print("preVerificationGas: \(estimate.preVerificationGas)")
+//        print("verificationGasLimit: \(estimate.verificationGasLimit)")
+//        print("callGasLimit: \(estimate.callGasLimit)")
 //    }
-    
-    func testCalcGasLimit() async throws {
-        let provider = try await BundlerJsonRpcProvider(url: rpcUrl, bundlerRpc: bundleRpcUrl, network: .Custom(networkID: 97))
-        let web3 = Web3(provider: provider)
-        let factory = SimpleAccountFactory(web3: web3, address: factoryAddress)
-        
-        let initData = Data(hex: "0x13868836bb7b4dd354df54e8fef4092011a587b15fbfb9cf0000000000000000000000003dda64705be3b4d9c512b707ef480795f45070cc0000000000000000000000000000000000000000000000000000000000000001")
-        let data = Data(hex: "0xb61d27f60000000000000000000000003dda64705be3b4d9c512b707ef480795f45070cc000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000044a9059cbb0000000000000000000000003dda64705be3b4d9c512b707ef480795f45070cc00000000000000000000000000000000000000000000000000000000000f424000000000000000000000000000000000000000000000000000000000")
-        let op = UserOperation(sender: sender, nonce: 0, initCode: Data(), callData: data, callGasLimit: 0, verificationGasLimit: 0, preVerificationGas: 21000, maxFeePerGas: 1, maxPriorityFeePerGas: 1, paymasterAndData: Data(), signature: Data(bytes: [1], count: 65))
-        
-        let estimate: GasEstimate = try await provider.send("eth_estimateUserOperationGas", parameter: [op, entryPoint]).result
-
-        print("preVerificationGas: \(estimate.preVerificationGas)")
-        print("verificationGasLimit: \(estimate.verificationGasLimit)")
-        print("callGasLimit: \(estimate.callGasLimit)")
-    }
     
     func packed(op: UserOperation) -> Data {
         let packed = ABIEncoder.encode(types: [

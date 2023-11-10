@@ -9,7 +9,7 @@ import Foundation
 import BigInt
 import Web3Core
 
-struct GasEstimate: APIResultType {
+public struct GasEstimate: APIResultType {
     let preVerificationGas: BigUInt
     let verificationGasLimit: BigUInt
     let callGasLimit: BigUInt
@@ -23,7 +23,7 @@ extension GasEstimate {
         case verificationGas
     }
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         do {
             let preVerificationGas = try container.decodeHex(BigUInt.self, forKey: .preVerificationGas) + 3000
