@@ -10,9 +10,9 @@ import BigInt
 import Web3Core
 
 public struct GasEstimate: APIResultType {
-    let preVerificationGas: BigUInt
-    let verificationGasLimit: BigUInt
-    let callGasLimit: BigUInt
+    public let preVerificationGas: BigUInt
+    public let verificationGasLimit: BigUInt
+    public let callGasLimit: BigUInt
 }
 
 extension GasEstimate {
