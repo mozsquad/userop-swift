@@ -39,8 +39,13 @@ extension GasEstimate {
                       verificationGasLimit: verificationGasLimit,
                       callGasLimit: callGasLimit)
         } catch {
-            let preVerificationGas = try container.decode(Int.self, forKey: .preVerificationGas)
-            let verificationGasLimit = try container.decode(Int.self, forKey: .verificationGasLimit)
+            let preVerificationGas = try container.decode(Int.self, forKey: .preVerificationGas) + 3000
+            var tempGasLimit = try? container.decode(Int.self, forKey: .verificationGasLimit)
+            tempGasLimit = tempGasLimit ?? (try? container.decode(Int.self, forKey: .verificationGas))
+            if tempGasLimit != nil {
+                tempGasLimit! += 60000
+            }
+            let verificationGasLimit = tempGasLimit ?? 600000
             let callGasLimit = try container.decode(Int.self, forKey: .callGasLimit)
             self.init(preVerificationGas: BigUInt(preVerificationGas),
                       verificationGasLimit: BigUInt(verificationGasLimit),
