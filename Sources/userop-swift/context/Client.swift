@@ -54,8 +54,8 @@ public class Client: IClient {
     }
 
     public init(rpcUrl: URL,
-                overrideBundlerRpc: URL? = nil,
                 chainId: BigUInt,
+                overrideBundlerRpc: URL? = nil,
                 entryPoint: EthereumAddress) async throws {
         self.provider = try await BundlerJsonRpcProvider(url: rpcUrl, bundlerRpc: overrideBundlerRpc, network: .Custom(networkID: chainId))
         self.web3 = Web3(provider: provider)
