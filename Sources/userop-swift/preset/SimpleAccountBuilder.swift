@@ -35,6 +35,7 @@ public class SimpleAccountBuilder: UserOperationBuilder {
 
     public init(signer: Signer,
                 rpcUrl: URL,
+                chainId: BigUInt,
                 bundleRpcUrl: URL? = nil,
                 entryPoint: EthereumAddress,
                 factory: EthereumAddress,
@@ -42,7 +43,7 @@ public class SimpleAccountBuilder: UserOperationBuilder {
                 senderAddress: EthereumAddress? = nil,
                 paymasterMiddleware: UserOperationMiddleware? = nil) async throws {
         self.signer = signer
-        self.provider = try await BundlerJsonRpcProvider(url: rpcUrl, bundlerRpc: bundleRpcUrl)
+        self.provider = try await BundlerJsonRpcProvider(url: rpcUrl, bundlerRpc: bundleRpcUrl, network: .Custom(networkID: chainId))
         self.web3 = Web3(provider: self.provider)
         self.entryPoint = EntryPoint(web3: web3, address: entryPoint)
         self.factory = SimpleAccountFactory(web3: web3, address: entryPoint)

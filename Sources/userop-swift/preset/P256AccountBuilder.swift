@@ -48,6 +48,7 @@ public class P256AccountBuilder: UserOperationBuilder {
     ///   - paymasterMiddleware: Paymaster entry address, if not provided, `GasEstimateMiddleware` will be used
     public init(signer: Signer,
                 rpcUrl: URL,
+                chainId: BigUInt,
                 bundleRpcUrl: URL? = nil,
                 entryPoint: EthereumAddress,
                 factory: EthereumAddress,
@@ -55,7 +56,7 @@ public class P256AccountBuilder: UserOperationBuilder {
                 senderAddress: EthereumAddress? = nil,
                 paymasterMiddleware: UserOperationMiddleware? = nil) async throws {
         self.signer = signer
-        self.provider = try await BundlerJsonRpcProvider(url: rpcUrl, bundlerRpc: bundleRpcUrl)
+        self.provider = try await BundlerJsonRpcProvider(url: rpcUrl, bundlerRpc: bundleRpcUrl, network: .Custom(networkID: chainId))
         self.web3 = Web3(provider: self.provider)
         self.entryPoint = EntryPoint(web3: web3, address: entryPoint)
         self.factory = P256AccountFactory(web3: web3, address: entryPoint)
