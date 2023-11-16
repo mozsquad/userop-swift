@@ -84,9 +84,19 @@ final class P256AccountTests: XCTestCase {
     func testEstimate() async throws {
         let owner = EthereumAddress("0x9bd3cf04e8f82ea6458b5a1cf4bed1f0623c8b04")!
         let sender = EthereumAddress("0x518Cf77C2e79cFA3682CDa25604A6b88942eBE9D")!
-        let client = try await Client(rpcUrl: rpcUrl, overrideBundlerRpc: bundleRpcUrl, entryPoint: entryPoint)
+        let client = try await Client(rpcUrl: rpcUrl, chainId: BigUInt(97), overrideBundlerRpc: bundleRpcUrl, entryPoint: entryPoint)
         let initCode = client.getInitCode(factoryAddress: factoryAddress, owner: owner, salt: salt)
         let estimate = try await client.estimateUserOperationGas(sender: sender, initCode: initCode)
+        let bigGas = (estimate.callGasLimit + estimate.preVerificationGas + estimate.verificationGasLimit) * 5000000000
+        let gas = Utilities.formatToPrecision(bigGas)
+        print("gas", gas)
         print(estimate)
+    }
+    
+    func testGasPrice() async throws {
+        let provider = try await BundlerJsonRpcProvider(url: rpcUrl, bundlerRpc: bundleRpcUrl, network: .Custom(networkID: 97))
+        let web3 = Web3(provider: provider)
+        let price = try await web3.eth.gasPrice()
+        print("gasPrice: \(price)")
     }
 }

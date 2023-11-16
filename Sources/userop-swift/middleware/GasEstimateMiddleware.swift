@@ -34,7 +34,7 @@ extension GasEstimate {
             }
             let verificationGasLimit = tempGasLimit ?? BigUInt(600000)
             
-            let callGasLimit = try container.decodeHex(BigUInt.self, forKey: .callGasLimit)
+            let callGasLimit = try container.decodeHex(BigUInt.self, forKey: .callGasLimit) + 600000
             self.init(preVerificationGas: preVerificationGas,
                       verificationGasLimit: verificationGasLimit,
                       callGasLimit: callGasLimit)
@@ -46,7 +46,7 @@ extension GasEstimate {
                 tempGasLimit! += 60000
             }
             let verificationGasLimit = tempGasLimit ?? 600000
-            let callGasLimit = try container.decode(Int.self, forKey: .callGasLimit)
+            let callGasLimit = try container.decode(Int.self, forKey: .callGasLimit) + 600000
             self.init(preVerificationGas: BigUInt(preVerificationGas),
                       verificationGasLimit: BigUInt(verificationGasLimit),
                       callGasLimit: BigUInt(callGasLimit))
