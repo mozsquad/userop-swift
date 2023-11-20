@@ -19,7 +19,7 @@ public struct SendUserOperationResponse {
     ///
     /// - Returns: `UserOperationEvent` event log
     public func wait() async throws -> EventLog? {
-        let end = Date().addingTimeInterval(300)
+        let end = Date().addingTimeInterval(30)
         while Date().distance(to: end) > 0 {
             let events = try await entryPoint.queryUserOperationEvent(userOpHash: userOpHash)
             if !events.isEmpty {
