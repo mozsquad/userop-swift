@@ -64,7 +64,7 @@ public class SimpleAccountBuilder: UserOperationBuilder {
         self.signature = try await signer.signMessage(Data(hex: "0xdead").sha3(.keccak256))
 
         useMiddleware(ResolveAccountMiddleware(entryPoint: self.entryPoint, initCode: initCode))
-        useMiddleware(GasPriceMiddleware(provider: provider))
+//        useMiddleware(GasPriceMiddleware(provider: provider))
         useMiddleware(GasEstimateMiddleware(rpcProvider: provider))
         if let paymasterMiddleware {
             useMiddleware(paymasterMiddleware)

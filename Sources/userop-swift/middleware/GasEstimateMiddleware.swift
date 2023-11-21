@@ -26,7 +26,7 @@ extension GasEstimate {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         do {
-            let preVerificationGas = try container.decodeHex(BigUInt.self, forKey: .preVerificationGas) + 3000
+            let preVerificationGas = try container.decodeHex(BigUInt.self, forKey: .preVerificationGas) + 4000
             var tempGasLimit = try? container.decodeHex(BigUInt.self, forKey: .verificationGasLimit)
             tempGasLimit = tempGasLimit ?? (try? container.decodeHex(BigUInt.self, forKey: .verificationGas))
             if tempGasLimit != nil {
@@ -39,7 +39,7 @@ extension GasEstimate {
                       verificationGasLimit: verificationGasLimit,
                       callGasLimit: callGasLimit)
         } catch {
-            let preVerificationGas = try container.decode(Int.self, forKey: .preVerificationGas) + 3000
+            let preVerificationGas = try container.decode(Int.self, forKey: .preVerificationGas) + 4000
             var tempGasLimit = try? container.decode(Int.self, forKey: .verificationGasLimit)
             tempGasLimit = tempGasLimit ?? (try? container.decode(Int.self, forKey: .verificationGas))
             if tempGasLimit != nil {
