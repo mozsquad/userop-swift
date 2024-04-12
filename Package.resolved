@@ -14,17 +14,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/krzyzanowskim/CryptoSwift.git",
       "state" : {
-        "revision" : "039f56c5d7960f277087a0be51f5eb04ed0ec073",
-        "version" : "1.5.1"
+        "revision" : "c9c3df6ab812de32bae61fc0cd1bf6d45170ebf0",
+        "version" : "1.8.2"
       }
     },
     {
       "identity" : "web3swift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/fish-yan/web3swift.git",
+      "location" : "https://github.com/AyushBherwani1998/web3swift.git",
       "state" : {
         "branch" : "userop",
-        "revision" : "30ba2b38c6b6bfae9b3f6977337f26eed4561d91"
+        "revision" : "ea17e72fe0541e0fa423dfed6570823ae04ca80a"
       }
     }
   ],
